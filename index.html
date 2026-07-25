@@ -486,7 +486,8 @@
       seen.push(p.color);
     });
   }
-  var PALETTE = ["#5A55DC", "#0E9B84", "#D2760A", "#C0397B", "#3A7BD5", "#8E44AD", "#C0392B", "#4E7A27"];
+  var PALETTE = ["#5A55DC", "#0E9B84", "#D2760A", "#C0397B", "#3A7BD5", "#8E44AD", "#C0392B", "#4E7A27",
+    "#B7791F", "#0F766E", "#9D2367", "#1E6FB8", "#6D28D9", "#A23B1E", "#2F855A", "#475569"];
   var LV = ["", "低", "中", "高"];
   var ETYPE = { in: "輸入型", out: "輸出型" };
   var S0 = 1.6, SMULT = 2.4;
@@ -1972,6 +1973,7 @@
       var acts = document.createElement("div");
       acts.className = "form-acts";
       acts.style.marginTop = ".4rem";
+      mkBtn(acts, "編輯", function(){ editProjCard(p, card); }, false, "ghost");
       mkBtn(acts, "刪除", function(){
         if (list.length){ toast("「" + p.name + "」底下還有 " + list.length + " 個任務，請先移除或刪除它們"); return; }
         if ((state.projs || []).length <= 1){ toast("至少要保留一個專案"); return; }
@@ -1983,6 +1985,53 @@
       card.appendChild(acts);
       host.appendChild(card);
     });
+  }
+
+  function editProjCard(p, card){
+    // 內嵌編輯器：改名 + 換色。改色會重繪 swatch，但用 curName 保住已輸入的名稱（同 renderProjForm 修法）。
+    var editColor = p.color, curName = p.name;
+    function draw(){
+      card.innerHTML = '<div class="ff"><span class="lbl">專案名稱</span></div>';
+      var nameFF = card.querySelector(".ff");
+      var nin = document.createElement("input");
+      nin.value = curName;
+      nin.addEventListener("input", function(){ curName = nin.value; });
+      nameFF.appendChild(nin);
+      var cw = document.createElement("div");
+      cw.className = "ff";
+      cw.innerHTML = '<span class="lbl">代表色</span>';
+      var sw = document.createElement("div");
+      sw.style.cssText = "display:flex;gap:.3rem;flex-wrap:wrap;padding-top:.15rem";
+      var used = usedColors(p.id);
+      PALETTE.forEach(function(c){
+        var taken = used.indexOf(c) >= 0;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "swatch" + (c === editColor && !taken ? " on" : "");
+        b.style.background = c;
+        b.disabled = taken;
+        if (taken){ b.style.opacity = ".25"; b.style.cursor = "not-allowed"; }
+        b.setAttribute("aria-label", taken ? "此顏色已被其他專案使用" : "選擇顏色 " + c);
+        b.title = taken ? "已被其他專案使用" : "";
+        if (!taken) b.addEventListener("click", function(){ editColor = c; draw(); });
+        sw.appendChild(b);
+      });
+      cw.appendChild(sw);
+      card.appendChild(cw);
+      var acts = document.createElement("div");
+      acts.className = "form-acts";
+      acts.style.marginTop = ".4rem";
+      mkBtn(acts, "儲存", function(){
+        var nm = curName.trim();
+        if (!nm){ toast("請先填專案名稱"); return; }
+        p.name = nm; p.color = editColor;
+        rebuildProj(); persist(); renderAll();
+        toast("已更新專案「" + nm + "」");
+      });
+      mkBtn(acts, "取消", function(){ renderAll(); }, false, "ghost");
+      card.appendChild(acts);
+    }
+    draw();
   }
 
   var newProjColor = PALETTE[3];
