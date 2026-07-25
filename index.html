@@ -738,6 +738,13 @@
   }
   function perHours(t){ return t.hours / effDays(t); }
   function perUnits(t){ return Math.max(1, Math.round(t.total / effDays(t))); }
+  function spreadDay(t){
+    // 攤開一天，但要真正多納入一個有效工作日（跳過週末/恢復日等緩衝日），
+    // 否則每日份量不會下降。上限 7 天，避免遇到極端情況無限延伸。
+    var e0 = effDays(t), s0 = t.span, guard = 0;
+    while (t.start + t.span < HORIZON && effDays(t) <= e0 && guard < 7){ t.span += 1; guard++; }
+    return t.span !== s0;
+  }
   function lastDoneDay(t){
     var m = state.done[t.id], best = -1;
     if (m) Object.keys(m).forEach(function(k){ if (m[k] >= 1 && +k > best) best = +k; });
@@ -1400,7 +1407,7 @@
     var acts = document.createElement("div");
     acts.className = "dt-acts";
     mkBtn(acts, "多攤一天", function(){
-      if (t.start + t.span < HORIZON){ t.span += 1; persist(); renderAll();
+      if (spreadDay(t)){ persist(); renderAll();
         toast("已攤到 " + t.span + " 天 · 每日 " + perUnits(t) + " " + t.unit); }
     }, false, "ghost");
     mkBtn(acts, "落後補救", function(){ rescue(t); }, false, "ghost");
@@ -1432,7 +1439,7 @@
     }, t.reviews && t.recorded === null, "ghost");
     mkBtn(ab, "落後補救", function(){ rescue(t); }, false, "ghost");
     mkBtn(ab, "多攤一天", function(){
-      if (t.start + t.span < HORIZON){ t.span += 1; persist(); renderAll();
+      if (spreadDay(t)){ persist(); renderAll();
         toast("已攤到 " + t.span + " 天 · 每日 " + perUnits(t) + " " + t.unit + "（緩衝日不分配）"); }
     }, false, "ghost");
   }
@@ -1999,7 +2006,13 @@
       if (taken){ b.style.opacity = ".25"; b.style.cursor = "not-allowed"; }
       b.setAttribute("aria-label", taken ? "此顏色已被其他專案使用" : "選擇顏色 " + c);
       b.title = taken ? "已被其他專案使用" : "";
-      if (!taken) b.addEventListener("click", function(){ newProjColor = c; renderProjForm(); f.hidden = false; });
+      if (!taken) b.addEventListener("click", function(){
+        newProjColor = c;
+        var keepName = (document.getElementById("p_name") || {}).value || "";
+        renderProjForm();
+        var ni = document.getElementById("p_name"); if (ni) ni.value = keepName;
+        f.hidden = false;
+      });
       sw.appendChild(b);
     });
     cw.appendChild(sw);
