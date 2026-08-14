@@ -79,8 +79,8 @@ body { background: var(--bg); }
   gap: 1.5rem;
 }
 
-/* 任務／資料頁也套用同一個量測寬度 */
-#vTask, #vData { max-width: var(--measure); margin-inline: auto; }
+/* 側欄常駐於三個分頁：量測寬度改由 .ds-shell 控制 */
+#vTask, #vData { max-width: none; margin-inline: 0; }
 
 /* ---------- 3. 字級（demo 換算） ---------- */
 
@@ -282,13 +282,11 @@ body { background: var(--bg); }
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: .5rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--sep2) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.ds-side::-webkit-scrollbar { width: 6px; }
-.ds-side::-webkit-scrollbar-track { background: transparent; }
-.ds-side::-webkit-scrollbar-thumb { background: var(--sep2); border-radius: 99px; }
+.ds-side::-webkit-scrollbar { width: 0; height: 0; }
 
 .ds-main { min-width: 0; }
 .ds-main > .sect-h:first-child { margin-top: 0; }
@@ -400,6 +398,64 @@ body { background: var(--bg); }
 #hardMs .dc-n { font-size: .8125rem; }
 #hardMs .note { font-size: .6875rem; margin-top: .3rem; }
 
+/* --- 硬里程碑水平軸（由 layout.js 產生；原節點保留但隱藏） --- */
+.ds-hidden-src { display: none !important; }
+
+.ds-mstrack { padding: 1.25rem 1.5rem 1rem; }
+
+.ds-ms-h { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+.ds-ms-t { font-size: 1rem; font-weight: 600; letter-spacing: -.012em; }
+.ds-ms-d { font-size: .8125rem; color: var(--muted); }
+
+.ds-ms-rail {
+  position: relative;
+  height: 82px;
+  margin: 1.75rem .5rem 0;
+}
+.ds-ms-line {
+  position: absolute;
+  left: 0; right: 0; top: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--sep2);
+}
+.ds-ms-now, .ds-ms-end {
+  position: absolute;
+  top: 0;
+  width: 11px; height: 11px;
+  border-radius: 99px;
+}
+.ds-ms-now { left: -5px; background: var(--gk); }
+.ds-ms-end { right: -5px; background: var(--sep2); }
+
+.ds-ms-pt { position: absolute; top: 0; transform: translateX(-50%); }
+.ds-ms-pt > i {
+  display: block;
+  width: 11px; height: 11px;
+  border-radius: 99px;
+  margin: 0 auto;
+  box-shadow: 0 0 0 3px var(--solid);
+}
+.ds-ms-lb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: .5rem;
+  white-space: nowrap;
+}
+.ds-ms-lb b { font-size: .75rem; font-weight: 600; }
+.ds-ms-n { font-size: .875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ds-ms-dt { font-size: .6875rem; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+.ds-ms-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: .75rem;
+  color: var(--muted);
+  margin: .25rem .5rem 0;
+}
+
 /* --- 今日總覽：兩張並排 --- */
 #dash { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 
@@ -407,3 +463,36 @@ body { background: var(--bg); }
 .brand { font-size: 1.375rem; }
 .brand span { font-size: .75rem; }
 .toolbar { padding-block: .75rem; }
+
+/* ============================================================
+   11. 週節奏 — 讓橫向軌道讀起來像月曆
+   週末在原程式已標為緩衝日（.buf），
+   用「緩衝日之後的第一個非緩衝日」＝週一 當作週界線，
+   不需要知道視窗從星期幾開始。
+   ============================================================ */
+
+.dcol.buf + .dcol:not(.buf),
+.glines > i.buf + i:not(.buf) {
+  border-left: 2px solid var(--sep2);
+}
+
+/* 週末底色比原本的斜線更收斂一點 */
+.dcol.buf {
+  background:
+    linear-gradient(color-mix(in srgb, var(--ink) 4%, transparent),
+                    color-mix(in srgb, var(--ink) 4%, transparent));
+}
+.glines > i.buf {
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+/* 今天更明確 */
+.dcol.today .dn { font-weight: 700; }
+.dcol.today::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--gk);
+}
+.dcol { position: relative; }

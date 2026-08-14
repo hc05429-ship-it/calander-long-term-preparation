@@ -93,9 +93,101 @@
 
     shell.appendChild(side);
     shell.appendChild(main);
-    vCal.appendChild(shell);
+
+    /* --- 側欄常駐：外框提到 .pad 層，三個分頁都包進 main --- */
+    var pad = vCal.parentNode;
+    pad.insertBefore(shell, vCal);
+    main.appendChild(vCal);
+
+    var vTask = document.getElementById("vTask");
+    var vData = document.getElementById("vData");
+    if (vTask) main.appendChild(vTask);
+    if (vData) main.appendChild(vData);
+
+    buildMilestoneTrack();
 
     document.documentElement.classList.add("ds-layout-on");
+  }
+
+  /* ------------------------------------------------------------
+     硬里程碑：改為水平時間軸
+     不動原本的 #hardMs（JS 照常重繪），只把它隱藏起來，
+     在旁邊生一條軌道，用 MutationObserver 同步內容。
+     ------------------------------------------------------------ */
+  function buildMilestoneTrack() {
+    var host = document.getElementById("hardMs");
+    if (!host || document.querySelector(".ds-mstrack")) return;
+
+    var track = document.createElement("div");
+    track.className = "card ds-mstrack";
+    host.parentNode.insertBefore(track, host);
+    host.classList.add("ds-hidden-src");
+
+    var hd = host.previousElementSibling;
+    while (hd && hd !== track) hd = hd.previousElementSibling;
+    hd = track.previousElementSibling;
+    if (hd && hd.classList.contains("sect-h")) hd.classList.add("ds-hidden-src");
+
+    function read() {
+      return Array.prototype.map.call(host.querySelectorAll(".dc"), function (c) {
+        var big = c.querySelector(".big");
+        var txt = big ? big.textContent : "";
+        var over = /已過/.test(txt);
+        var left = parseInt((txt.match(/-?\d+/) || [0])[0], 10) * (over ? -1 : 1);
+        var note = c.querySelector(".note");
+        var noteTx = note ? note.textContent : "";
+        var before = parseInt((noteTx.match(/考前\s*(\d+)/) || [0, 0])[1], 10);
+        var date = (noteTx.match(/^[^（(]+/) || [""])[0].trim();
+        var pill = c.querySelector(".pill");
+        return {
+          label: (c.querySelector(".dc-n") || {}).textContent || "",
+          left: left,
+          before: before,
+          date: date,
+          status: pill ? pill.textContent : "",
+          color: pill ? pill.style.color : "",
+          bg: pill ? pill.style.background : ""
+        };
+      });
+    }
+
+    function paint() {
+      var ms = read();
+      if (!ms.length) { track.hidden = true; return; }
+      track.hidden = false;
+
+      var total = Math.max(1, ms[0].left + ms[0].before);
+      var html =
+        '<div class="ds-ms-h">' +
+          '<span class="ds-ms-t">硬里程碑（從考試日回推）</span>' +
+          '<span class="ds-ms-d">這些日子推不到，後面全部會塌</span>' +
+        "</div>" +
+        '<div class="ds-ms-rail"><div class="ds-ms-line"></div>' +
+        '<div class="ds-ms-now"></div><div class="ds-ms-end"></div>';
+
+      ms.forEach(function (m) {
+        var pct = Math.max(0, Math.min(100, (1 - m.left / total) * 100));
+        html +=
+          '<div class="ds-ms-pt" style="left:' + pct.toFixed(2) + '%">' +
+            '<i style="background:' + (m.color || "var(--gk)") + '"></i>' +
+            '<div class="ds-ms-lb">' +
+              '<b>' + m.label + "</b>" +
+              '<span class="ds-ms-n" style="color:' + (m.left < 0 ? "var(--red)" : "var(--ink)") + '">' +
+                (m.left < 0 ? "已過 " + -m.left : m.left) + " 天</span>" +
+              '<span class="ds-ms-dt">' + m.date + "</span>" +
+            "</div>" +
+          "</div>";
+      });
+
+      html +=
+        "</div>" +
+        '<div class="ds-ms-foot"><span>今天</span><span>考試日</span></div>';
+
+      track.innerHTML = html;
+    }
+
+    paint();
+    new MutationObserver(paint).observe(host, { childList: true, subtree: true });
   }
 
   if (document.readyState === "loading") {
