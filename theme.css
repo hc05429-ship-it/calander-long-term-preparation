@@ -1,31 +1,33 @@
 /* ============================================================
    theme.css — 視覺優化層
-   用法：在 index.html 的 </head> 之前加入
-       <link rel="stylesheet" href="theme.css">
-   必須放在原本的 <style> 之後，才能正常覆蓋。
-   本檔只改外觀，不改任何 DOM 結構、id、class 或行為。
-   移除那一行 <link> 即完全還原。
+   比例基準：版面 Demo v2（所有數值由 demo 換算，1rem = 16px）
 
-   ⚠ 刻意不覆蓋的兩個變數：
-     --labw / --colw  ← JS 用同一組數值計算拖曳與定位（LABW=116、ZOOM[*].colw），
-                        CSS 單方面改動會讓任務條落點錯位。
+   用法：在原本的 </style> 之後加入
+       <link rel="stylesheet" href="theme.css">
+   本檔只改外觀，不改任何 DOM 結構、id、class 或行為。
+
+   ⚠ 刻意不覆蓋 --labw / --colw
+     JS 用同一組數值計算拖曳與定位（LABW=116、ZOOM[*].colw），
+     CSS 單方面改動會讓任務條落點錯位。
    ============================================================ */
 
-/* ---------- 1. 色彩：保留原色相，拉高次級文字對比 ---------- */
+/* ---------- 1. 令牌：色彩對比與形狀 ---------- */
 
 :root {
   --muted: #5A5A66;
   --faint: #7C7C88;
-  --sep:  rgba(60,60,67,0.13);
-  --sep2: rgba(60,60,67,0.26);
+  --sep:  rgba(60,60,67,0.12);
+  --sep2: rgba(60,60,67,0.24);
 
-  /* 形狀 */
-  --rl: 18px;
-  --rm: 14px;
-  --rs: 10px;
+  /* demo：外層區塊 16px、內層卡片 12px、小元件 6px */
+  --rl: 16px;
+  --rm: 12px;
+  --rs: 6px;
 
-  /* 本檔自用 */
-  --gutter: clamp(1.1rem, 2.6vw, 2rem);
+  /* demo：main padding 28px 36px */
+  --gutter: clamp(1.25rem, 2.4vw, 2.25rem);
+  --measure: 1560px;
+
   --shadow-1: 0 1px 2px rgba(16,16,24,.05), 0 1px 8px rgba(16,16,24,.04);
   --shadow-2: 0 2px 6px rgba(16,16,24,.07), 0 12px 32px rgba(16,16,24,.07);
 }
@@ -34,8 +36,8 @@
   :root {
     --muted: #A8A8B4;
     --faint: #82828E;
-    --sep:  rgba(235,235,245,.11);
-    --sep2: rgba(235,235,245,.24);
+    --sep:  rgba(235,235,245,.09);
+    --sep2: rgba(235,235,245,.2);
     --shadow-1: 0 1px 2px rgba(0,0,0,.3);
     --shadow-2: 0 2px 6px rgba(0,0,0,.34), 0 14px 36px rgba(0,0,0,.4);
   }
@@ -44,8 +46,8 @@
 :root[data-theme="light"] {
   --muted: #5A5A66;
   --faint: #7C7C88;
-  --sep:  rgba(60,60,67,.13);
-  --sep2: rgba(60,60,67,.26);
+  --sep:  rgba(60,60,67,.12);
+  --sep2: rgba(60,60,67,.24);
   --shadow-1: 0 1px 2px rgba(16,16,24,.05), 0 1px 8px rgba(16,16,24,.04);
   --shadow-2: 0 2px 6px rgba(16,16,24,.07), 0 12px 32px rgba(16,16,24,.07);
 }
@@ -53,188 +55,198 @@
 :root[data-theme="dark"] {
   --muted: #A8A8B4;
   --faint: #82828E;
-  --sep:  rgba(235,235,245,.11);
-  --sep2: rgba(235,235,245,.24);
+  --sep:  rgba(235,235,245,.09);
+  --sep2: rgba(235,235,245,.2);
   --shadow-1: 0 1px 2px rgba(0,0,0,.3);
   --shadow-2: 0 2px 6px rgba(0,0,0,.34), 0 14px 36px rgba(0,0,0,.4);
 }
 
-/* ---------- 2. 版面：放寬到全寬，邊距隨視窗縮放 ---------- */
+/* ---------- 2. 版面骨架 ---------- */
 
 body { background: var(--bg); }
 
 .app {
   max-width: none;
   border-radius: 0;
-  padding-bottom: 3rem;
+  padding-bottom: 5rem;   /* demo: main padding-bottom 80px */
 }
 
 .pad { padding: 0 var(--gutter); }
 
 .toolbar {
-  padding: .85rem var(--gutter);
+  padding: .875rem max(var(--gutter), calc((100vw - var(--measure)) / 2));
   border-radius: 0;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-/* ---------- 3. 字級：把過小的說明文字拉回可讀範圍 ---------- */
+/* 任務／資料頁也套用同一個量測寬度 */
+#vTask, #vData { max-width: var(--measure); margin-inline: auto; }
 
-.brand { font-size: 1.2rem; }
-.brand span { font-size: .78rem; margin-top: 3px; }
+/* ---------- 3. 字級（demo 換算） ---------- */
 
-.sect-t { font-size: 1.06rem; letter-spacing: -.016em; }
-.sect-d { font-size: .8rem; line-height: 1.55; color: var(--muted); }
-.lbl    { font-size: .74rem; letter-spacing: .03em; }
-.note   { font-size: .74rem; line-height: 1.6; }
-.big    { font-size: 1.62rem; }
-.big small { font-size: .76rem; }
+/* demo h1 28px / 600 / -.02em */
+.brand { font-size: 1.75rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; }
+.brand span { font-size: .8125rem; font-weight: 400; margin-top: 4px; color: var(--muted); }
 
-.dc-n   { font-size: .86rem; }
-.pill   { font-size: .7rem; padding: .16rem .55rem; }
-.brk-r  { font-size: .74rem; }
-.gstat .gv { font-size: .86rem; }
-.gstat .gl { font-size: .66rem; }
-.grp-n  { font-size: .92rem; }
-.grp-c  { font-size: .72rem; }
-.tc-t   { font-size: .92rem; }
-.tc-sub { font-size: .74rem; }
-.ln-t   { font-size: .76rem; }
-.tb-t   { font-size: .82rem; }
-.dt-t   { font-size: .98rem; }
-.detail { font-size: .8rem; }
-.dt-p   { font-size: .74rem; }
-.retrow .rn { font-size: .8rem; }
-.retpc  { font-size: .78rem; flex-basis: 3.6rem; }
-.retmeta{ font-size: .68rem; flex-basis: 7rem; }
-.sumtx  { font-size: .64rem; }
-.spark-x span { font-size: .62rem; }
-.capline span { font-size: .64rem; }
-.mxc-l  { font-size: .62rem; }
-.mchip  { font-size: .68rem; padding: .18rem .42rem; }
-.mxax-y, .mxax-x { font-size: .7rem; }
-.vchip  { font-size: .66rem; padding: .08rem .4rem; }
-.vhr    { font-size: .68rem; }
-.cellbox b { font-size: .6rem; }
-.steps  { font-size: .8rem; }
-.warn   { font-size: .79rem; }
-.toast  { font-size: .82rem; padding: .6rem 1.1rem; }
-.dcol .wd { font-size: .7rem; }
-.dcol .dn { font-size: .9rem; }
-.daybar .lgut, .exrow .lgut, .sumrow .lgut { font-size: .74rem; }
+/* demo 區塊標題 19px / 600、說明 13px */
+.sect-t { font-size: 1.1875rem; font-weight: 600; letter-spacing: -.012em; }
+.sect-d { font-size: .8125rem; line-height: 1.55; color: var(--muted); }
 
-/* ---------- 4. 呼吸：區塊之間拉開，卡片內部加厚 ---------- */
+/* demo 側欄小標 12px / letter-spacing .1em */
+.lbl { font-size: .75rem; letter-spacing: .1em; }
 
-.sect-h { margin: 2.1rem 0 .75rem; gap: .7rem; }
-.sect-h:first-child { margin-top: 1.4rem; }
+.note { font-size: .75rem; line-height: 1.6; }
 
-.dash, .dash2 { gap: .75rem; margin-top: .75rem; }
-.dash  { grid-template-columns: repeat(auto-fit, minmax(248px, 1fr)); }
-.dash2 { grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); }
+/* demo 數值 26px / 600 */
+.big { font-size: 1.625rem; letter-spacing: -.02em; }
+.big small { font-size: .75rem; }
 
-.dc    { padding: .95rem 1.05rem; }
-.dbox  { padding: .9rem 1.05rem; }
-.dc-h  { margin-bottom: .55rem; }
-.dday-row { gap: .75rem; margin-top: 1.2rem; }
-.grp-body { padding: .65rem; gap: .6rem; }
-.grp-h { padding: .7rem .95rem; }
-.tcard { padding: .8rem .95rem; gap: .5rem .9rem; }
-.form  { padding: 1rem 1.05rem; gap: .75rem .9rem; }
-.detail { padding: 1rem 1.05rem; top: 5rem; }
-.actionbar { padding: .7rem .9rem; margin-top: .75rem; gap: .5rem; }
-.mxgrid { padding: 1rem; gap: 6px; }
-.mxc { padding: .5rem; min-height: 88px; gap: 5px; }
+.dc-n   { font-size: .875rem; }
+.pill   { font-size: .6875rem; padding: .15rem .5rem; }
+.brk-r  { font-size: .75rem; }
+.gstat .gv { font-size: .875rem; }
+.gstat .gl { font-size: .6875rem; }
+.grp-n  { font-size: .9375rem; }
+.grp-c  { font-size: .75rem; }
+.tc-t   { font-size: .9375rem; }
+.tc-sub { font-size: .75rem; }
+.ln-t   { font-size: .75rem; }
+.tb-t   { font-size: .8125rem; }
+.dt-t   { font-size: 1rem; }
+.detail { font-size: .8125rem; }
+.dt-p   { font-size: .75rem; }
+.retrow .rn { font-size: .8125rem; }
+.retpc  { font-size: .8125rem; flex-basis: 3.6rem; }
+.retmeta{ font-size: .6875rem; flex-basis: 7rem; }
+.sumtx  { font-size: .6875rem; }
+.spark-x span { font-size: .6875rem; }
+.capline span { font-size: .6875rem; }
+.mxc-l  { font-size: .6875rem; }
+.mchip  { font-size: .6875rem; padding: .2rem .4rem; }
+.vchip  { font-size: .6875rem; padding: .1rem .4rem; }
+.vhr    { font-size: .6875rem; }
+.cellbox b { font-size: .625rem; }
+.steps  { font-size: .8125rem; }
+.warn   { font-size: .8125rem; }
+.toast  { font-size: .8125rem; padding: .625rem 1.1rem; }
+.dcol .wd { font-size: .6875rem; }
+.dcol .dn { font-size: .875rem; }
+.daybar .lgut, .exrow .lgut, .sumrow .lgut { font-size: .75rem; }
+.rpill  { font-size: .75rem; padding: .2rem .55rem; }
+
+/* demo 縱軸文字 12px；並修正原樣式的 rotate(180deg) 造成中文倒置 */
+.mxax-x { font-size: .75rem; }
+.mxax-y {
+  font-size: .75rem;
+  writing-mode: vertical-rl;
+  transform: none;
+  letter-spacing: .08em;
+}
+
+/* ---------- 4. 間距（demo：區塊 gap 28px、卡片 padding 22px、格線 gap 20px） ---------- */
+
+.sect-h { margin: 1.75rem 0 .75rem; gap: .75rem; }
+.sect-h:first-child { margin-top: 1.25rem; }
+
+.dash, .dash2 { gap: 1.25rem; margin-top: .75rem; }
+.dash  { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.dash2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.dc    { padding: 1.375rem; }
+.dbox  { padding: 1.375rem; }
+.dc-h  { margin-bottom: .625rem; }
+.dday-row { gap: 1.25rem; margin-top: 1.25rem; }
+
+.grp-body { padding: .75rem; gap: .75rem; }
+.grp-h { padding: .75rem 1rem; }
+.tcard { padding: 1rem 1.125rem; gap: .5rem 1rem; }
+.form  { padding: 1.375rem; gap: .75rem 1rem; }
+.detail { padding: 1.375rem; top: 5.75rem; }
+.actionbar { padding: .875rem 1.125rem; margin-top: .75rem; gap: .5rem; }
+
+.mxgrid {
+  padding: 1.375rem;
+  gap: .5rem;
+  grid-template-columns: 3rem repeat(3, minmax(0, 1fr));
+  max-width: 980px;
+}
+.mxc { padding: .5rem; min-height: 88px; gap: 4px; }
 
 /* ---------- 5. 卡片與分隔線 ---------- */
 
-.card {
-  box-shadow: var(--shadow-1);
-  transition: box-shadow .2s cubic-bezier(.32,.72,0,1);
-}
-
+.card { box-shadow: var(--shadow-1); transition: box-shadow .2s cubic-bezier(.32,.72,0,1); }
 .scroller { box-shadow: var(--shadow-1); }
-
 .grp-h { border-radius: var(--rm) var(--rm) 0 0; }
+.warn { border-radius: 0 var(--rm) var(--rm) 0; padding: .75rem 1rem; line-height: 1.65; }
+.code { padding: .875rem 1rem; font-size: .75rem; }
 
-.warn { border-radius: 0 var(--rm) var(--rm) 0; padding: .7rem .9rem; line-height: 1.65; }
-
-.code { padding: .8rem .95rem; font-size: .74rem; }
-
-/* 選取狀態的外框改為柔和的雙層，避免硬邊 */
 .tcard.sel { box-shadow: 0 0 0 2px var(--pc), var(--shadow-2); }
 .tbar.sel  { box-shadow: 0 0 0 2px var(--pc), var(--shadow-2); }
 
-/* ---------- 6. 按鈕與 chip：加大點擊區 ---------- */
+/* ---------- 6. 按鈕與 chip（demo：導覽列 9px 12px / 15px、pill 高度 30–32px） ---------- */
 
 .abtn {
-  padding: .42rem .95rem;
-  font-size: .78rem;
-  min-height: 32px;
+  padding: .5rem 1rem;
+  font-size: .8125rem;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-.dt-acts .abtn { font-size: .74rem; padding: .34rem .72rem; min-height: 28px; }
-.tc-acts .abtn { font-size: .74rem; padding: .34rem .72rem; min-height: 28px; }
+.dt-acts .abtn,
+.tc-acts .abtn { font-size: .75rem; padding: .375rem .75rem; min-height: 30px; }
 
 .tbtn {
-  font-size: .8rem;
-  padding: .42rem .95rem;
-  min-height: 32px;
+  font-size: .8125rem;
+  padding: .5rem 1rem;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
 }
 
 .seg { padding: 3px; gap: 3px; }
 .seg button {
-  font-size: .82rem;
-  padding: .36rem 1rem;
-  min-height: 30px;
+  font-size: .9375rem;
+  padding: .5rem 1.125rem;
+  min-height: 34px;
+  font-weight: 500;
 }
 .seg button.on { box-shadow: var(--shadow-1); }
 
 .schip {
-  font-size: .78rem;
-  padding: .34rem .85rem;
-  min-height: 30px;
+  font-size: .8125rem;
+  padding: .375rem .875rem;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
   transition: border-color .18s ease, color .18s ease, background .18s ease;
 }
 
-.mseg { border-radius: 8px; }
-.mseg button { font-size: .7rem; padding: .22rem .55rem; min-height: 26px; }
+.mseg { border-radius: var(--rs); }
+.mseg button { font-size: .75rem; padding: .25rem .6rem; min-height: 28px; }
 
-.swatch { width: 22px; height: 22px; border-radius: 6px; }
+.swatch { width: 22px; height: 22px; border-radius: var(--rs); }
 
-.rpill { font-size: .72rem; padding: .22rem .58rem; }
-
-/* 表單欄位：底線加粗一點、輸入區加高 */
-.ff input, .ff select { font-size: .82rem; padding: .28rem 2px; }
-.fld input { font-size: .92rem; padding: 3px 2px; }
-.hnum { font-size: .76rem; }
+.ff input, .ff select { font-size: .8125rem; padding: .3rem 2px; }
+.fld input { font-size: .9375rem; padding: 3px 2px; }
+.hnum { font-size: .8125rem; }
 
 /* ---------- 7. 軸列與方陣：只調高度與對比，不動 --colw / --labw ---------- */
 
 .daybar { border-bottom: 1px solid var(--sep2); }
 .dcol   { padding: .5rem 0 .45rem; }
 
-.lane { height: 60px; }
-.tbar { top: 8px; height: 44px; box-shadow: var(--shadow-1); }
-.lanes { padding: .45rem 0 .55rem; }
+.lane  { height: 60px; }
+.tbar  { top: 8px; height: 44px; border-radius: var(--rs); box-shadow: var(--shadow-1); }
+.lanes { padding: .5rem 0 .625rem; }
 
-.excell { height: 46px; }
-.cellbox {
-  width: 34px;
-  height: 25px;
-  border-radius: 6px;
-}
-.exrow.head { background: color-mix(in srgb, var(--gk) 6%, transparent); }
-.sumrow     { background: color-mix(in srgb, var(--gk) 6%, transparent); }
-.sumcell    { padding: .4rem .2rem; }
-.sumbars    { height: 28px; }
+.excell  { height: 46px; }
+.cellbox { width: 34px; height: 25px; border-radius: var(--rs); }
+.exrow.head, .sumrow { background: color-mix(in srgb, var(--gk) 6%, transparent); }
+.sumcell { padding: .4rem .2rem; }
+.sumbars { height: 28px; }
 
-/* 今天欄更明確 */
-.dcol.today  { background: color-mix(in srgb, var(--gk) 15%, transparent); }
+.dcol.today       { background: color-mix(in srgb, var(--gk) 15%, transparent); }
 .glines > i.today { background: color-mix(in srgb, var(--gk) 9%, transparent); }
 
 /* ---------- 8. 微互動 ---------- */
@@ -247,56 +259,76 @@ body { background: var(--bg); }
 
 /* ============================================================
    9. 側欄版面（僅在 layout.js 載入時生效）
+   demo：側欄 272px、主畫面左距 36px、區塊 gap 28px
    ============================================================ */
 
 .ds-shell {
   display: grid;
-  grid-template-columns: 296px minmax(0, 1fr);
-  gap: 1.6rem;
+  grid-template-columns: 272px minmax(0, 1fr);
+  gap: 2.25rem;
   align-items: start;
-  margin-top: 1.2rem;
+  margin-top: 1.25rem;
+  max-width: var(--measure);
+  margin-inline: auto;
 }
 
 .ds-side {
   position: sticky;
-  top: 4.6rem;
+  top: 5.75rem;
   display: flex;
   flex-direction: column;
-  gap: .9rem;
-  max-height: calc(100vh - 6rem);
+  gap: 1.5rem;                     /* demo 側欄段落 gap 24px */
+  max-height: calc(100vh - 7.25rem);
   overflow-y: auto;
-  padding-right: .3rem;
+  overscroll-behavior: contain;
+  padding-right: .5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sep2) transparent;
 }
+
+.ds-side::-webkit-scrollbar { width: 6px; }
+.ds-side::-webkit-scrollbar-track { background: transparent; }
+.ds-side::-webkit-scrollbar-thumb { background: var(--sep2); border-radius: 99px; }
 
 .ds-main { min-width: 0; }
 .ds-main > .sect-h:first-child { margin-top: 0; }
 
-/* 側欄內的元件縮排：改為單欄堆疊 */
-.ds-side .sortbar { margin-top: 0; }
-.ds-side .dash2 { grid-template-columns: 1fr; margin-top: 0; }
-.ds-side .dday-row { flex-direction: column; margin-top: 0; }
-.ds-side .dbox { flex: 1 1 auto; }
-.ds-side .sect-h { margin: .2rem 0 .5rem; }
-.ds-side .form { grid-template-columns: 1fr; }
+/* 側欄內縮排為單欄堆疊 */
+.ds-side .sortbar {
+  margin-top: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: .5rem;
+}
+.ds-side .sortbar > span[style*="flex"] { display: none; }
+.ds-side .sortbar .abtn { width: 100%; }
+.ds-side .dash2 { grid-template-columns: 1fr; margin-top: 0; gap: .625rem; }
+.ds-side .dday-row { flex-direction: column; margin-top: 0; gap: .625rem; }
+.ds-side .dbox { flex: 1 1 auto; padding: 1rem; }
+.ds-side .dc { padding: 1rem; }
+.ds-side .sect-h { margin: 0 0 .5rem; }
+.ds-side .form { grid-template-columns: 1fr; padding: 1rem; }
+.ds-side .sect-t { font-size: 1rem; }
 
 /* 設定摺疊 */
 .ds-settings {
   margin-top: auto;
   border-top: 1px solid var(--sep);
-  padding-top: .9rem;
+  padding-top: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: .7rem;
+  gap: 1rem;
 }
 
 .ds-set-h {
   font: inherit;
-  font-size: .8rem;
+  font-size: .75rem;
   font-weight: 600;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: var(--faint);
   background: transparent;
   border: none;
-  padding: .3rem .2rem;
+  padding: .25rem .5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -305,34 +337,29 @@ body { background: var(--bg); }
 }
 
 .ds-set-cv {
-  font-size: .74rem;
+  font-size: .75rem;
   color: var(--faint);
   transition: transform .22s cubic-bezier(.32,.72,0,1);
 }
-
 .ds-set-h.closed .ds-set-cv { transform: rotate(-90deg); }
 
-.ds-set-b {
-  display: flex;
-  flex-direction: column;
-  gap: .7rem;
-}
+.ds-set-b { display: flex; flex-direction: column; gap: 1rem; }
 
-/* 主畫面的側邊詳情面板在窄欄時收起 */
+/* 主畫面較窄時，右側詳情面板收起讓出寬度 */
 @media (max-width: 1400px) {
   .ds-shell .planwrap { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* 窄視窗回到單欄堆疊 */
 @media (max-width: 1080px) {
-  .ds-shell { grid-template-columns: minmax(0, 1fr); gap: 1.1rem; }
+  .ds-shell { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
   .ds-side {
     position: static;
     max-height: none;
     overflow: visible;
     padding-right: 0;
   }
-  .ds-side .dash2 { grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); }
+  .ds-side .dash2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
   .ds-side .dday-row { flex-direction: row; flex-wrap: wrap; }
-  .ds-settings { margin-top: .4rem; }
+  .ds-settings { margin-top: .5rem; }
 }
