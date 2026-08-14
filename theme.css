@@ -373,6 +373,16 @@ body { background: var(--bg); }
   padding: .875rem 1rem;
   border-radius: var(--rm);
 }
+
+/* 主要目標：原程式用 JS 畫了一圈 2px 紫框，改成左側細標記 */
+#ddayList .dc:has(.pill) {
+  box-shadow: inset 3px 0 0 var(--gk) !important;
+}
+#ddayList .dc:has(.pill) .pill {
+  background: var(--gk-bg) !important;
+  color: var(--gk-tx) !important;
+  font-weight: 500;
+}
 .ds-side .dc .big { font-size: 1.375rem; }
 .ds-side .dc .big small { font-size: .6875rem; }
 .ds-side .dc-n { font-size: .8125rem; }
