@@ -149,8 +149,8 @@ body { background: var(--bg); }
 .sect-h:first-child { margin-top: 1.25rem; }
 
 .dash, .dash2 { gap: 1.25rem; margin-top: .75rem; }
-.dash  { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.dash2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.dash  { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.dash2 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 
 .dc    { padding: 1.375rem; }
 .dbox  { padding: 1.375rem; }
@@ -359,7 +359,51 @@ body { background: var(--bg); }
     overflow: visible;
     padding-right: 0;
   }
-  .ds-side .dash2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .ds-side .dash2 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
   .ds-side .dday-row { flex-direction: row; flex-wrap: wrap; }
   .ds-settings { margin-top: .5rem; }
 }
+
+/* ============================================================
+   10. 壓密 — 對齊 demo 的量體感
+   demo 側欄是扁平小卡，主畫面靠日曆本體撐場，
+   輔助資訊一律低調。
+   ============================================================ */
+
+/* --- 側欄 D-Day 卡：從大卡壓成小條 --- */
+.ds-side .dc {
+  padding: .875rem 1rem;
+  border-radius: var(--rm);
+}
+.ds-side .dc .big { font-size: 1.375rem; }
+.ds-side .dc .big small { font-size: .6875rem; }
+.ds-side .dc-n { font-size: .8125rem; }
+.ds-side .pill { font-size: .625rem; padding: .1rem .45rem; }
+.ds-side .note,
+.ds-side .lbl { font-size: .6875rem; }
+
+/* 刪除鈕縮成低調的小字鈕 */
+.ds-side .abtn.danger,
+.ds-side .tc-acts .abtn,
+.ds-side .dc .abtn {
+  font-size: .6875rem;
+  padding: .2rem .55rem;
+  min-height: 24px;
+  border-radius: var(--rs);
+}
+
+/* --- 硬里程碑：三張並排的矮卡，不要撐高 --- */
+#hardMs { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; }
+#hardMs .dc { padding: .875rem 1rem; }
+#hardMs .dc .big { font-size: 1.375rem; }
+#hardMs .dc .big small { font-size: .6875rem; }
+#hardMs .dc-n { font-size: .8125rem; }
+#hardMs .note { font-size: .6875rem; margin-top: .3rem; }
+
+/* --- 今日總覽：兩張並排 --- */
+#dash { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+/* --- 品牌標題回到 demo 的比重 --- */
+.brand { font-size: 1.375rem; }
+.brand span { font-size: .75rem; }
+.toolbar { padding-block: .75rem; }
